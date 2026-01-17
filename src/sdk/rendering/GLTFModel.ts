@@ -246,17 +246,37 @@ export class GLTFModel implements Model, RenderableListener {
         return;
       }
       const mixer = new THREE.AnimationMixer(scene);
+      const newAnimations = animations.map((animation) => {
+        const action = mixer.clipAction(animation);
+        action.clampWhenFinished = true;
+        action.zeroSlopeAtEnd = false;
+        action.zeroSlopeAtStart = false;
+        return action;
+      });
+
+      // Sync new model to current animation state
+      // This ensures equipment changes mid-animation continue seamlessly (like OSRS)
+      if (this.playingAnimationId >= 0 && this.mixers.length > 0) {
+        // An animation is playing - sync new model to it
+        const currentTime = this.mixers[0].time;
+        const action = newAnimations[this.playingAnimationId];
+        if (action) {
+          action.setEffectiveWeight(this.playingAnimationCanBlend ? 1 : 1.0);
+          action.stop().setLoop(THREE.LoopOnce, 1).play();
+          mixer.setTime(currentTime);
+        }
+      } else {
+        // No animation playing - start the pose/idle animation
+        const poseIndex = this.renderable.animationIndex;
+        const poseAction = newAnimations[poseIndex];
+        if (poseAction) {
+          poseAction.stop().setLoop(THREE.LoopRepeat, Number.POSITIVE_INFINITY).play();
+        }
+      }
+
       this.mixers.push(mixer);
-      this.animations.push(
-        animations.map((animation) => {
-          const action = mixer.clipAction(animation);
-          action.clampWhenFinished = true;
-          action.zeroSlopeAtEnd = false;
-          action.zeroSlopeAtStart = false;
-          return action;
-        }),
-      );
-      this.onAnimationFinished();
+      this.animations.push(newAnimations);
+
       // add listener to first mixer only
       if (this.mixers.length === 1) {
         mixer.addEventListener("finished", (e) => {
