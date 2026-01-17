@@ -69,6 +69,7 @@ export class Player extends Unit {
   cachedBonuses: UnitBonuses = null;
   useSpecialAttack = false;
   didSpecialAttack = false;
+  spellAnimationId: number | null = null; // Set by spells to override attack animation
   effects = new PlayerEffects();
   regenTimer: PlayerRegenTimer = new PlayerRegenTimer(this);
 
@@ -1005,7 +1006,11 @@ export class Player extends Unit {
 
   override playAttackAnimation() {
     let animationId = this.attackAnimationId;
-    if (this.didSpecialAttack && this.equipment.weapon?.specialAttackAnimationId) {
+    // Spell animation takes priority (set by spell before attack)
+    if (this.spellAnimationId !== null) {
+      animationId = this.spellAnimationId;
+      this.spellAnimationId = null; // Clear after use
+    } else if (this.didSpecialAttack && this.equipment.weapon?.specialAttackAnimationId) {
       animationId = this.equipment.weapon.specialAttackAnimationId;
     }
     if (animationId) {

@@ -18,5 +18,5 @@ export enum PlayerAnimationIndices {
   GodswordSlash = 15,
   AgsSpecialAttack = 16,
   ThrowKnife = 17,
-  AncientCast = 18,
+  AncientBarrageCast = 18,
 }

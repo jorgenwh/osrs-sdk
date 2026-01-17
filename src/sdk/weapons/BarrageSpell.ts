@@ -1,11 +1,13 @@
 import { Mob } from "../Mob";
 import { Pathing } from "../Pathing";
+import { Player } from "../Player";
 import { Unit } from "../Unit";
 import { MagicWeapon } from "./MagicWeapon";
 import { ProjectileOptions } from "./Projectile";
 import { AttackBonuses } from "../gear/Weapon";
 import { XpDrop } from "../XpDrop";
 import { AttackStyle } from "../AttackStylesController";
+import { PlayerAnimationIndices } from "../rendering/GLTFAnimationConstants";
 
 export class BarrageSpell extends MagicWeapon {
   get aoe() {
@@ -38,6 +40,10 @@ export class BarrageSpell extends MagicWeapon {
   }
 
   cast(from: Unit, to: Unit) {
+    // Set spell animation for ancient magicks
+    if (from.isPlayer) {
+      (from as Player).spellAnimationId = PlayerAnimationIndices.AncientBarrageCast;
+    }
     from.grantXp(new XpDrop("magic", 52));
     // calculate AoE magic effects
     if (this.aoe.length) {
