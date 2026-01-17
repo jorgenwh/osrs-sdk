@@ -78,6 +78,7 @@ export * from './Renderable';
 
 export * from './SetEffect';
 export * from './Settings';
+export * from './SpotAnim';
 export * from './Trainer';
 export * from './utils/Assets';
 export * from './utils/BrowserUtils';

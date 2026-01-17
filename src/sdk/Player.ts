@@ -68,6 +68,7 @@ export class Player extends Unit {
   running = true;
   cachedBonuses: UnitBonuses = null;
   useSpecialAttack = false;
+  didSpecialAttack = false;
   effects = new PlayerEffects();
   regenTimer: PlayerRegenTimer = new PlayerRegenTimer(this);
 
@@ -378,12 +379,14 @@ export class Player extends Unit {
       if (this.equipment.weapon) {
         if (this.equipment.weapon.hasSpecialAttack() && this.useSpecialAttack) {
           if (this.currentStats.specialAttack >= this.equipment.weapon.specialAttackDrain()) {
+            this.didSpecialAttack = true;
             this.equipment.weapon.specialAttack(this, this.aggro as Unit /* hack */);
             this.currentStats.specialAttack -= this.equipment.weapon.specialAttackDrain();
             this.regenTimer.specUsed();
           }
           this.useSpecialAttack = false;
         } else {
+          this.didSpecialAttack = false;
           const bonuses: AttackBonuses = {};
           if (this.equipment.helmet && this.equipment.helmet.itemName === ItemName.SLAYER_HELMET_I) {
             bonuses.gearMeleeMultiplier = 7 / 6;
@@ -514,6 +517,14 @@ export class Player extends Unit {
     return this.equipment.weapon ? this.equipment.weapon.idleAnimationId : PlayerAnimationIndices.Idle;
   }
 
+  private getWalkPoseId() {
+    return this.equipment.weapon ? this.equipment.weapon.walkAnimationId : PlayerAnimationIndices.Walk;
+  }
+
+  private getRunPoseId() {
+    return this.equipment.weapon ? this.equipment.weapon.runAnimationId : PlayerAnimationIndices.Run;
+  }
+
   // WARNING: client ticks do NOT happen in line with render or logic ticks. Do not use this for anything other than
   // visual logic.
   clientTick(tickPercent) {
@@ -530,7 +541,7 @@ export class Player extends Unit {
     const baseMovementSpeed = 1 / 30;
     let movementSpeed = baseMovementSpeed;
 
-    this.currentPoseAnimation = PlayerAnimationIndices.Walk;
+    this.currentPoseAnimation = this.getWalkPoseId();
 
     const canRotate = true;
     if (currentAngle !== this.nextAngle && canRotate) {
@@ -551,7 +562,7 @@ export class Player extends Unit {
     }
     if (run) {
       movementSpeed *= 2;
-      this.currentPoseAnimation = PlayerAnimationIndices.Run;
+      this.currentPoseAnimation = this.getRunPoseId();
     }
     let diffX = Math.abs(x - nextX);
     let diffY = Math.abs(y - nextY);
@@ -990,6 +1001,17 @@ export class Player extends Unit {
 
   override get attackAnimationId() {
     return this.equipment.weapon?.attackAnimationId;
+  }
+
+  override playAttackAnimation() {
+    let animationId = this.attackAnimationId;
+    if (this.didSpecialAttack && this.equipment.weapon?.specialAttackAnimationId) {
+      animationId = this.equipment.weapon.specialAttackAnimationId;
+    }
+    if (animationId) {
+      const doBlend = this.animationIndex !== this.idlePoseId && this.canBlendAttackAnimation;
+      this.playAnimation(animationId, doBlend);
+    }
   }
 
   get canBlendAttackAnimation() {

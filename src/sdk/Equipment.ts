@@ -105,4 +105,11 @@ export class Equipment extends Item {
   get attackAnimationId(): number | null {
     return null;
   }
+
+  /**
+   * index of animation to use for special attacks if possible
+   */
+  get specialAttackAnimationId(): number | null {
+    return null;
+  }
 }

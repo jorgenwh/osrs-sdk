@@ -17,6 +17,7 @@ import { Actor } from "./rendering/Actor";
 import _ from "lodash";
 import { Unit } from "./Unit";
 import { Projectile } from "./weapons/Projectile";
+import { SpotAnim } from "./SpotAnim";
 import { Trainer } from "./Trainer";
 import { Pathing } from "./Pathing";
 
@@ -433,6 +434,15 @@ export class Viewport3d implements ViewportDelegate {
       if (!actor) {
         actor = new Actor(projectile);
         this.knownActors.set(projectile, actor);
+      }
+    });
+
+    // Add spot animations to scene
+    region.spotAnims.forEach((spotAnim: SpotAnim) => {
+      let actor = this.knownActors.get(spotAnim);
+      if (!actor) {
+        actor = new Actor(spotAnim);
+        this.knownActors.set(spotAnim, actor);
       }
     });
 

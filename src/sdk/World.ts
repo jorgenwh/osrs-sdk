@@ -10,6 +10,7 @@ import { Pathing } from "./Pathing";
 import { InputController } from "./Input";
 import { ControlPanelController } from "./ControlPanelController";
 import { Projectile } from "./weapons/Projectile";
+import { SpotAnim } from "./SpotAnim";
 import { filter } from "lodash";
 
 const CLIENT_TICK_MS = 20;
@@ -159,6 +160,15 @@ export class World {
       if (projectile.remainingDelay === 0) {
         projectile.beforeHit();
       }
+    });
+
+    // Process spot animations
+    region.spotAnims = filter(
+      region.spotAnims,
+      (spotAnim: SpotAnim) => !spotAnim.shouldDestroy(),
+    );
+    region.spotAnims.forEach((spotAnim: SpotAnim) => {
+      spotAnim.onTick();
     });
 
     region.players.forEach((player: Player) => {

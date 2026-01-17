@@ -8,6 +8,7 @@ import type { Player } from "./Player";
 import { Settings } from "./Settings";
 import type { World } from "./World";
 import type { Projectile } from "./weapons/Projectile";
+import type { SpotAnim } from "./SpotAnim";
 import { TileMarker } from "../content";
 import { Viewport } from "./Viewport";
 import { Trainer } from "./Trainer";
@@ -39,6 +40,8 @@ export abstract class Region {
   entities: Entity[] = [];
   // free-floating projectiles not associated with a mob/player. TODO maybe they all should be here.
   projectiles: Projectile[] = [];
+  // Spot animations (graphics) - visual effects at locations
+  spotAnims: SpotAnim[] = [];
 
   mapImage: HTMLImageElement;
 
@@ -132,6 +135,14 @@ export abstract class Region {
     remove(this.projectiles, projectile);
   }
 
+  addSpotAnim(spotAnim: SpotAnim) {
+    this.spotAnims.push(spotAnim);
+  }
+
+  removeSpotAnim(spotAnim: SpotAnim) {
+    remove(this.spotAnims, spotAnim);
+  }
+
   getName(): string {
     return "My Region";
   }
@@ -195,6 +206,7 @@ export abstract class Region {
     this.newMobs = [];
     this.entities = [];
     this.projectiles = [];
+    this.spotAnims = [];
     this.groundItems = {};
     TileMarker.loadAll(this);
     Viewport.viewport.reset();

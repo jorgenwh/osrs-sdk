@@ -301,4 +301,12 @@ export class Weapon extends Equipment {
   get idleAnimationId() {
     return PlayerAnimationIndices.Idle;
   }
+
+  get walkAnimationId() {
+    return PlayerAnimationIndices.Walk;
+  }
+
+  get runAnimationId() {
+    return PlayerAnimationIndices.Run;
+  }
 }
