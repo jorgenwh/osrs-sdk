@@ -10,6 +10,7 @@ import { Pathing } from "../Pathing";
 import { BasicModel } from "../rendering/BasicModel";
 import { GLTFModel } from "../rendering/GLTFModel";
 import { Settings } from "../Settings";
+import { SpotAnim } from "../SpotAnim";
 import { Viewport } from "../Viewport";
 import { Trainer } from "../Trainer";
 
@@ -54,6 +55,10 @@ export interface ProjectileOptions {
   offsetsInterpolator?: MultiModelProjectileOffsetInterpolator;
   // offset of start height
   verticalOffset?: number;
+  // SpotAnim to spawn when projectile lands (e.g., ice barrage impact)
+  impactModel?: string;
+  impactModelScale?: number;
+  impactDuration?: number;
 }
 
 const targetIsLocation = (x: Unit | Location): x is Location => (x as Location).x !== undefined;
@@ -273,6 +278,17 @@ export class Projectile extends Renderable {
     }
     if (!targetIsLocation(this.to) && this.options.checkPrayerAtHit && this.weapon?.isBlockable(this.from, this.to, { attackStyle: this.attackStyle })) {
       this.damage = 0;
+    }
+    // Spawn impact SpotAnim if configured
+    if (this.options.impactModel && !targetIsLocation(this.to)) {
+      const impactAnim = new SpotAnim(this.to, {
+        model: this.options.impactModel,
+        modelScale: this.options.impactModelScale ?? 1 / 128,
+        duration: this.options.impactDuration ?? 2,
+        heightOffset: 0,
+        followTarget: true,
+      });
+      this.from.region.addSpotAnim(impactAnim);
     }
   }
 

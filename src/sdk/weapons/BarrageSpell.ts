@@ -40,9 +40,10 @@ export class BarrageSpell extends MagicWeapon {
   }
 
   cast(from: Unit, to: Unit) {
-    // Set spell animation for ancient magicks
+    // Set spell animation and speed for ancient magicks
     if (from.isPlayer) {
       (from as Player).spellAnimationId = PlayerAnimationIndices.AncientBarrageCast;
+      (from as Player).castSpellSpeed = this.attackSpeed;
     }
     from.grantXp(new XpDrop("magic", 52));
     // calculate AoE magic effects

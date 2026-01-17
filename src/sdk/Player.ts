@@ -70,6 +70,7 @@ export class Player extends Unit {
   useSpecialAttack = false;
   didSpecialAttack = false;
   spellAnimationId: number | null = null; // Set by spells to override attack animation
+  castSpellSpeed: number | null = null; // Set by spells to override attack speed
   effects = new PlayerEffects();
   regenTimer: PlayerRegenTimer = new PlayerRegenTimer(this);
 
@@ -156,6 +157,12 @@ export class Player extends Unit {
   }
 
   get attackSpeed() {
+    // Spell speed takes priority (set by spell before attack)
+    if (this.castSpellSpeed !== null) {
+      const speed = this.castSpellSpeed;
+      this.castSpellSpeed = null; // Clear after use
+      return speed;
+    }
     if (this.manualSpellCastSelection) {
       return this.manualSpellCastSelection.attackSpeed;
     }
