@@ -436,7 +436,7 @@ export class Viewport3d implements ViewportDelegate {
       }
     });
 
-    const delta = this.clock.getDelta();
+    const delta = this.clock.getDelta() * Settings.speedMultiplier;
     this.updateCamera(delta);
 
     this.knownActors.forEach((actor, entity) => {

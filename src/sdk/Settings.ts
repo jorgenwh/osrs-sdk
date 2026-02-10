@@ -54,6 +54,8 @@ export class Settings {
 
   static _isMobileResult = null;
 
+  static speedMultiplier = 1;
+
   static use3dView = true;
 
   static isUsingWasdKeybind = Settings.checkWasd();

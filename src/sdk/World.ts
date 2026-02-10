@@ -83,15 +83,16 @@ export class World {
     const elapsed = now - this.then;
     this.fps = Math.floor(1000 / elapsed);
     
+    const effectiveTickMs = Settings.tickMs / Settings.speedMultiplier;
     if (now > this.nextTickTimer) {
-      this.nextTickTimer += Settings.tickMs;
+      this.nextTickTimer += effectiveTickMs;
       this.tickTimer = now;
       if (this.getReadyTimer > 0) {
         this.getReadyTimer--;
       }
       this.tickWorld();
     }
-    this.tickPercent = (now - this.tickTimer) / Settings.tickMs;
+    this.tickPercent = (now - this.tickTimer) / effectiveTickMs;
     Viewport.viewport.draw(this);
     this.then = now;
     this.frameCount++;
